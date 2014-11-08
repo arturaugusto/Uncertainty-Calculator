@@ -190,12 +190,14 @@ main <- function(object){
 
 			row_details <- list(
 				list(
-					type = "table",
-					value = data.frame(var_name = var_names, x = x, u = u, coef = coefs, nu = nu, row.names=description)
-					),
-				list(
-					type = "raw",
-					value = "Blabla"
+						list(
+							type = "raw",
+							value = "Uncertainties components:"
+							),
+						list(
+							type = "table",
+							value = data.frame(var_name = var_names, x = x, u = u, coef = coefs, nu = nu, row.names=description)
+							)
 					)
 				)
 			details <- c(details, row_details)
