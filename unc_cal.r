@@ -188,7 +188,16 @@ main <- function(object){
 			new_row <- sapply(names(out_table_data), function(x){return(get(x))})
 			out_table_data[i,] <- new_row
 
-			row_details <- list(list(type = "table", value = data.frame(var_name = var_names, x = x, u = u, coef = coefs, nu = nu, row.names=description) ) )
+			row_details <- list(
+				list(
+					type = "table",
+					value = data.frame(var_name = var_names, x = x, u = u, coef = coefs, nu = nu, row.names=description)
+					),
+				list(
+					type = "raw",
+					value = "Blabla"
+					)
+				)
 			details <- c(details, row_details)
 			
 		},
