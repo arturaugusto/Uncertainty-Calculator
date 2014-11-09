@@ -8,7 +8,7 @@ main <- function(object){
 
 	distributions <- list(Rect. = sqrt(3), Norm. = 2, Tiang. = sqrt(6), U = sqrt(2))
 
-	out_table_data <- data.frame(VI = numeric(), VC = numeric(), e = numeric(), U = numeric(), k = numeric(), veff = numeric())
+	out_table_data <- data.frame( VI = numeric(), VC = numeric(), e = numeric(), U = numeric(), k = numeric(), veff = numeric() )
 
 	details <- c()
 
@@ -26,8 +26,8 @@ main <- function(object){
 			# Create env for each row
 			row_env <- new.env()
 			# Set influence quantities values to new env
-			for(iq_name in object$value$influence_quantities){
-				iq_value <- as.numeric(object$table_data[i,][iq_name])
+			for(iq_name in object$value$influence_quantities["name"]){
+				iq_value <- as.numeric(object$table_data[i,][iq_name][[1]])
 				assign(iq_name, iq_value, envir = row_env)
 			}
 			data_row <- (object$table_data)[i,]
@@ -190,21 +190,27 @@ main <- function(object){
 
 			row_details <- list(
 				list(
-						list(
-							type = "raw",
-							value = "Uncertainties components:"
-							),
-						list(
-							type = "table",
-							value = data.frame(var_name = var_names, x = x, u = u, coef = coefs, nu = nu, row.names=description)
-							)
+					list(
+						type = "raw",
+						value = "Uncertainties components:"
+						),
+					list(
+						type = "table",
+						value = data.frame(var_name = var_names, x = x, u = u, coef = coefs, nu = nu, row.names=description)
+						)
 					)
 				)
 			details <- c(details, row_details)
 			
 		},
 		error = function(c){ 
-			row_details <- list(list(type = "errors", value = c$message) )
+			row_details <- list(
+				list(
+					list(
+						type = "errors", value = c$message
+						)
+					) 
+				)
 			# Access to global, set details with the errors
 			details <<- c(details, row_details)
 		},
