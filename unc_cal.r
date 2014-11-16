@@ -197,17 +197,11 @@ main <- function(object){
 				}
 			}
 
-			veff <- w_s(u,nu)
-			k <- qt(0.975,df=veff)
+			veff <- round(w_s(u,nu))
+			k <- round(qt(0.975,df=veff), 2)
 			uc <- sqrt(sum((u*coefs)^2))
 			# Format to 2 signif digits
 			U <- fmt_nsignif(uc*k, 2)
-
-			with(row_env, eval(parse(text=object$value$formula)))
-			e <- NA
-			if(length(ls(row_env, pattern="^e$"))){
-				e <- get("e", row_env)
-			}
 
 			uut_index <- which(object$value$variables$kind == "UUT")
 			var_name <- object$value$variables[uut_index,][["name"]]
@@ -216,7 +210,13 @@ main <- function(object){
 
 			VI <- fmt_mresol(as.character(get(var_name, row_env)), as.character(VI_first_sample))
 
-			VC <- fmt_mresol(as.character(as.numeric(VI) - e), U)
+			with(row_env, eval(parse(text=object$value$formula)))
+			e <- NA
+			if(length(ls(row_env, pattern="^e$"))){
+				e <- fmt_mresol( as.character(get("e", row_env)), VI_first_sample)
+			}
+
+			VC <- fmt_mresol(as.character(as.numeric(VI) - as.numeric(e)), U)
 
 			new_row <- sapply(names(out_table_data), function(x){return(get(x))})
 			out_table_data[i,] <- new_row
