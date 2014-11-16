@@ -213,10 +213,10 @@ main <- function(object){
 			var_name <- object$value$variables[uut_index,][["name"]]
 			
 			VI_first_sample <- object$table_data[paste(var_name, "1")][[1]][1]
-			
-			VI <- fmt_mresol(get(var_name, row_env), VI_first_sample)
 
-			VC <- fmt_mresol(VI - e, U)
+			VI <- fmt_mresol(as.character(get(var_name, row_env)), as.character(VI_first_sample))
+
+			VC <- fmt_mresol(as.character(as.numeric(VI) - e), U)
 
 			new_row <- sapply(names(out_table_data), function(x){return(get(x))})
 			out_table_data[i,] <- new_row
