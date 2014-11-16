@@ -11,18 +11,20 @@ main <- function(object){
 	}
 
 	fmt_mresol <- function(x, m){
-		x_sep_strings <- strsplit(x, "\\.")[[1]]
-		if(length(x_sep_strings) == 1){
+		m_sep_strings <- strsplit(m, "\\.")[[1]]
+		if(length(m_sep_strings) == 1){
 			return(x)
-		}else if(length(x_sep_strings) == 2){
-			m_sep_strings <- strsplit(m, "\\.")[[1]]
-			if(length(m_sep_strings) == 1){
-				n <- nchar(x_sep_strings[1])
-				fmt <- paste("%#", n, "s", sep = "")
-			}else{
+		}else if(length(m_sep_strings) == 2){
+			x_str <- gsub("^([-+0\\s])*", "", x, perl=TRUE)
+			x_sep_strings <- strsplit(x_str, "\\.")[[1]]
+			if(length(x_sep_strings[1])){
+				# e.g.: 12.456
 				n <- nchar(x_sep_strings[1]) + nchar(m_sep_strings[2])
-				fmt <- paste("%#.", n, "g", sep = "")
+			}else{
+				# e.g.: 0.012345
+				n <- 1 + nchar(m_sep_strings[2])				
 			}
+			fmt <- paste("%#.", n, "g", sep = "")
 			return(format(sprintf(signif(as.numeric(x), n), fmt=fmt), scientific=FALSE))
 		}else{
 			return("Invalid number.")
