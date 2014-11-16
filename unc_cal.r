@@ -6,7 +6,36 @@ main <- function(object){
 		(uc^4)/sum(((ci*ui)^4)/df)
 	}
 
-	distributions <- list(Rect. = sqrt(3), Norm. = 2, Tiang. = sqrt(6), U = sqrt(2))
+	fmt_nsignif <- function(x, n){
+		return(format(sprintf(signif(x, n), fmt=paste("%#.", n, "g", sep = "")), scientific=FALSE))
+	}
+
+	fmt_mresol <- function(x, m){
+		x_sep_strings <- strsplit(x, "\\.")[[1]]
+		if(length(x_sep_strings) == 1){
+			return(x)
+		}else if(length(x_sep_strings) == 2){
+			m_sep_strings <- strsplit(m, "\\.")[[1]]
+			if(length(m_sep_strings) == 1){
+				n <- nchar(x_sep_strings[1])
+				fmt <- paste("%#", n, "s", sep = "")
+			}else{
+				n <- nchar(x_sep_strings[1]) + nchar(m_sep_strings[2])
+				fmt <- paste("%#.", n, "g", sep = "")
+			}
+			return(format(sprintf(signif(as.numeric(x), n), fmt=fmt), scientific=FALSE))
+		}else{
+			return("Invalid number.")
+		}
+	}
+
+	get_nsignif <- function(x){
+		str <- gsub("^([0\\s\\D])*", "", x,  perl=TRUE)
+		n <- sum(nchar(strsplit(str, "\\.")[[1]]))
+		return(n)
+	}
+
+	distributions <- list(Rect. = sqrt(3), Norm. = 2, Triang. = sqrt(6), U = sqrt(2))
 
 	out_table_data <- data.frame( VI = numeric(), VC = numeric(), e = numeric(), U = numeric(), k = numeric(), veff = numeric() )
 
@@ -171,7 +200,8 @@ main <- function(object){
 			veff <- w_s(u,nu)
 			k <- qt(0.975,df=veff)
 			uc <- sqrt(sum((u*coefs)^2))
-			U <- uc*k		
+			# Format to 2 signif digits
+			U <- fmt_nsignif(uc*k, 2)
 
 			with(row_env, eval(parse(text=object$value$formula)))
 			e <- NA
@@ -181,9 +211,12 @@ main <- function(object){
 
 			uut_index <- which(object$value$variables$kind == "UUT")
 			var_name <- object$value$variables[uut_index,][["name"]]
-			VI <- get(var_name, row_env)
-			VC <- VI - e
 			
+			VI_first_sample <- object$table_data[paste(var_name, "1")][[1]][1]
+			
+			VI <- fmt_mresol(get(var_name, row_env), VI_first_sample)
+
+			VC <- fmt_mresol(VI - e, U)
 
 			new_row <- sapply(names(out_table_data), function(x){return(get(x))})
 			out_table_data[i,] <- new_row
