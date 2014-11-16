@@ -206,9 +206,9 @@ main <- function(object){
 			uut_index <- which(object$value$variables$kind == "UUT")
 			var_name <- object$value$variables[uut_index,][["name"]]
 			
-			VI_first_sample <- object$table_data[paste(var_name, "1")][[1]][1]
+			VI_first_sample <- as.character(object$table_data[paste(var_name, "1")][[1]][1])
 
-			VI <- fmt_mresol(as.character(get(var_name, row_env)), as.character(VI_first_sample))
+			VI <- fmt_mresol(as.character(get(var_name, row_env)), VI_first_sample)
 
 			with(row_env, eval(parse(text=object$value$formula)))
 			e <- NA
