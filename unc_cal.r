@@ -1,40 +1,9 @@
 main <- function(object){
-	library("numDeriv")
+	require("numDeriv")
 	# Remove the spare row
 	object$table_data <- head(object$table_data, -1)
 	w_s <- function (ui, df, ci = rep(1, length(ui)), uc = sqrt(sum((ci*ui)^2))){
 		(uc^4)/sum(((ci*ui)^4)/df)
-	}
-
-	fmt_nsignif <- function(x, n){
-		return(format(sprintf(signif(x, n), fmt=paste("%#.", n, "g", sep = "")), scientific=FALSE))
-	}
-
-	fmt_mresol <- function(x, m){
-		m_sep_strings <- strsplit(m, "\\.")[[1]]
-		if(length(m_sep_strings) == 1){
-			return(x)
-		}else if(length(m_sep_strings) == 2){
-			x_str <- gsub("^([-+0\\s])*", "", x, perl=TRUE)
-			x_sep_strings <- strsplit(x_str, "\\.")[[1]]
-			if(length(x_sep_strings[1])){
-				# e.g.: 12.456
-				n <- nchar(x_sep_strings[1]) + nchar(m_sep_strings[2])
-			}else{
-				# e.g.: 0.012345
-				n <- 1 + nchar(m_sep_strings[2])				
-			}
-			fmt <- paste("%#.", n, "g", sep = "")
-			return(format(sprintf(signif(as.numeric(x), n), fmt=fmt), scientific=FALSE))
-		}else{
-			return("Invalid number.")
-		}
-	}
-
-	get_nsignif <- function(x){
-		str <- gsub("^([0\\s\\D])*", "", x,  perl=TRUE)
-		n <- sum(nchar(strsplit(str, "\\.")[[1]]))
-		return(n)
 	}
 
 	distributions <- list(Rect. = sqrt(3), Norm. = 2, Triang. = sqrt(6), U = sqrt(2))
@@ -203,22 +172,22 @@ main <- function(object){
 			k <- round(qt(0.975,df=veff), 2)
 			uc <- sqrt(sum((u*coefs)^2))
 			# Format to 2 signif digits
-			U <- fmt_nsignif(uc*k, 2)
+			U <- uc*k
 
 			uut_index <- which(object$value$variables$kind == "UUT")
 			var_name <- object$value$variables[uut_index,][["name"]]
 			
 			VI_first_sample <- as.character(object$table_data[paste(var_name, "1")][[1]][1])
 
-			VI <- fmt_mresol(as.character(get(var_name, row_env)), VI_first_sample)
+			VI <- get(var_name, row_env)
 
 			with(row_env, eval(parse(text=object$value$formula)))
 			e <- NA
 			if(length(ls(row_env, pattern="^e$"))){
-				e <- fmt_mresol( as.character(get("e", row_env)), VI_first_sample)
+				e <- get("e", row_env)
 			}
 
-			VC <- fmt_mresol(as.character(as.numeric(VI) - as.numeric(e)), U)
+			VC <- as.numeric(VI) - as.numeric(e)
 
 			new_row <- sapply(names(out_table_data), function(x){return(get(x))})
 			out_table_data[i,] <- new_row
