@@ -27,7 +27,7 @@ main <- function(object){
 			row_env <- new.env()
 			# Set influence quantities values to new env
 			for(iq_name in object$value$influence_quantities["name"]){
-				if( typeof(object$table_data[i,][iq_name][[1]]) != "NULL" ){
+				if(iq_name %in% object$table_data[i,] ){
 					iq_value <- as.numeric(object$table_data[i,][iq_name][[1]])
 					assign(iq_name, iq_value, envir = row_env)
 				}
