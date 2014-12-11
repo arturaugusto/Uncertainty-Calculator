@@ -174,7 +174,7 @@ main <- function(object){
 			}
 
 			veff <- round(w_s(u,nu))
-			k <- round(qt(0.975,df=veff), 2)
+			k <- round(qt(0.977,df=veff), 2)
 			uc <- sqrt(sum((u*coefs)^2))
 			# Format to 2 signif digits
 			U <- uc*k
