@@ -26,12 +26,15 @@ main <- function(object){
 			# Create env for each row
 			row_env <- new.env()
 			# Set influence quantities values to new env
-			for(iq_name in object$value$influence_quantities["name"]){
-				if(iq_name %in% object$table_data[i,] ){
-					iq_value <- as.numeric(object$table_data[i,][iq_name][[1]])
-					assign(iq_name, iq_value, envir = row_env)
+			if( length(object$value$influence_quantities) ){
+				for(iq_name in unlist(object$value$influence_quantities["name"]) ){
+					if(iq_name %in% object$table_data[i,] ){
+						iq_value <- as.numeric(object$table_data[i,][iq_name][[1]])
+						assign(iq_name, iq_value, envir = row_env)
+					}
 				}
 			}
+
 			data_row <- (object$table_data)[i,]
 			n_row_vars <- NROW(object$value$variables)
 			for(j in seq(n_row_vars)){
@@ -84,7 +87,6 @@ main <- function(object){
 				snippet <- object$asset_snippets$snippets[lookup$snippet_index+1,]
 				range <- snippet$value$ranges[[1]][lookup$range_index+1,]
 				assign("range", range, envir = u_eval_env)
-				
 				# Assign some aliases
 				assign("range_start", range$limits$start, envir = u_eval_env)
 				assign("range_end", range$limits$end, envir = u_eval_env)
@@ -103,8 +105,10 @@ main <- function(object){
 				}
 
 				# Evaluate function that CAN overwrite or set the readout
-				with(u_eval_env, eval(parse(text=range$nominal_value)))
-
+				if(!is.null(range$nominal_value)){
+					with(u_eval_env, eval(parse(text=range$nominal_value)))
+				}
+				
 				# Define var value
 				if(length(ls(u_eval_env, pattern=paste("^readout$", sep="")))){
 					readout <- get("readout", envir = u_eval_env)
@@ -125,7 +129,6 @@ main <- function(object){
 				if( length(ls(u_eval_env, pattern="^correct_readout$")) ){
 					assign(var_name, u_eval_env$correct_readout, envir = row_env)
 				}
-
 				# Iterate over uncertanties
 				n_uncertainties <- nrow(uncertanty_set)
 				for(k in seq(n_uncertainties)){
