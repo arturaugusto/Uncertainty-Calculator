@@ -20,6 +20,8 @@ main <- function(object){
 			x <- c()
 			# quantities uncertanties
 			u <- c()
+			# max permissible erro
+			mpe <- c()
 			description <- c()
 			nu <- c()
 			var_names <- c()
@@ -132,15 +134,18 @@ main <- function(object){
 				# Iterate over uncertanties
 				n_uncertainties <- nrow(uncertanty_set)
 				for(k in seq(n_uncertainties)){
+					# First, set to 0 variables on env
+					assign("u", 0, u_eval_env)
+					assign("mpe", 0, u_eval_env)
 					with(u_eval_env, eval(parse(text=uncertanty_set[k,]$formula)))
 					# Store data on lists
 					x <- c(x, 0)
 					u <- c(u, get("u", envir = u_eval_env)/as.numeric(distributions[uncertanty_set[k,]$distribution]) )
+					mpe <- c(mpe, get("mpe", envir = u_eval_env) )
 					description <- c(description, paste(uncertanty_set[k,]$description, " (", var_name,")", sep="") )
 					var_names <- c(var_names, var_name)
 					nu <- c(nu, 9999)
-					# Need to metRology understand all the different variables
-					#var_names <- c(var_names, var_name)
+
 				}
 			}
 			expr <- parse(text=object$value$formula)
@@ -176,6 +181,7 @@ main <- function(object){
 			veff <- round(w_s(u,nu))
 			k <- round(qt(0.977,df=veff), 2)
 			uc <- sqrt(sum((u*coefs)^2))
+			mpe_sum <- sum(mpe)
 			# Format to 2 signif digits
 			U <- uc*k
 
@@ -205,7 +211,7 @@ main <- function(object){
 						),
 					list(
 						type = "table",
-						value = data.frame(var_name = var_names, x = x, u = u, coef = coefs, nu = nu, row.names=description)
+						value = data.frame(var_name = var_names, x = x, u = u, mpe = mpe_sum, coef = coefs, nu = nu, row.names=description)
 						)
 					)
 				)
