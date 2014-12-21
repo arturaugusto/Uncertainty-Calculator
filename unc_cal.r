@@ -182,7 +182,6 @@ main <- function(object){
 			k <- round(qt(0.977,df=veff), 2)
 			uc <- sqrt(sum((u*coefs)^2))
 			MPE <- sum(mpe)
-			# Format to 2 signif digits
 			U <- uc*k
 
 			uut_index <- which(object$value$variables$kind == "UUT")
