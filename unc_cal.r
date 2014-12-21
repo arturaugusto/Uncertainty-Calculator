@@ -8,7 +8,7 @@ main <- function(object){
 
 	distributions <- list(Rect. = sqrt(3), Norm. = 2, Triang. = sqrt(6), U = sqrt(2))
 
-	out_table_data <- data.frame( VI = numeric(), VC = numeric(), e = numeric(), U = numeric(), k = numeric(), veff = numeric() )
+	out_table_data <- data.frame( VI = numeric(), VC = numeric(), e = numeric(), MPE =  numeric(), U = numeric(), k = numeric(), veff = numeric() )
 
 	details <- c()
 
@@ -181,7 +181,7 @@ main <- function(object){
 			veff <- round(w_s(u,nu))
 			k <- round(qt(0.977,df=veff), 2)
 			uc <- sqrt(sum((u*coefs)^2))
-			mpe_sum <- sum(mpe)
+			MPE <- sum(mpe)
 			# Format to 2 signif digits
 			U <- uc*k
 
@@ -211,7 +211,7 @@ main <- function(object){
 						),
 					list(
 						type = "table",
-						value = data.frame(var_name = var_names, x = x, u = u, mpe = mpe_sum, coef = coefs, nu = nu, row.names=description)
+						value = data.frame(var_name = var_names, x = x, u = u, coef = coefs, nu = nu, row.names=description)
 						)
 					)
 				)
