@@ -95,8 +95,11 @@ main <- function(object){
 				assign("full_scale", range$limits$fullscale, envir = u_eval_env)
 
 				# Assign some helper variables
-				assign("is_UUT", "UUT" == object$value$variables[1,]$kind, envir = u_eval_env)
-				assign("is_meas", "Meas" == range$kind, envir = u_eval_env)
+				var_name_index <- which(object$value$variables$name == var_name)
+				is_UUT <- "UUT" == object$value$variables$kind[var_name_index]
+				print("Measurement" == range$kind)
+				assign("is_UUT", is_UUT, envir = u_eval_env)
+				assign("is_meas", "Measurement" == range$kind, envir = u_eval_env)
 				assign("is_source", "Source" == range$kind, envir = u_eval_env)
 				assign("is_fixed", "Fixed" == range$kind, envir = u_eval_env)
 
