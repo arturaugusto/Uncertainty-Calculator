@@ -117,8 +117,9 @@ main <- function(object){
 					assign(var_name, readout, envir = row_env)
 				}
 
-				# Check for reclassifications
-				if(!is.na(lookup$reklass_index)){
+				# Check for reclassifications if reclass
+				# index exists and var isnt of UUT kind
+				if(!is.na(lookup$reklass_index) && ("UUT" != object$value$variables[1,]$kind) ){
 					uncertanty_set <- range$reclassifications[[1]][lookup$reklass_index+1,]$uncertainties
 					# Evaluate function for correction
 					with(u_eval_env, eval(parse(text=range$reclassifications[[1]][lookup$reklass_index+1,]$correction)))
