@@ -214,7 +214,11 @@ main <- function(object){
 						),
 					list(
 						type = "table",
-						value = data.frame(var_name = var_names, x = x, u = u, coef = coefs, nu = nu, row.names=description)
+						value = data.frame("Description"=description, "Var Name" = var_names, x = x, u = u, coef = coefs, "𝜈" = nu)
+						),
+					list(
+						type = "raw",
+						value = paste( "Test Accuracy Ratios (TUR):", round(MPE/uc, 2) )
 						)
 					)
 				)
