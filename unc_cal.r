@@ -5,6 +5,44 @@ main <- function(object){
 	w_s <- function (ui, df, ci = rep(1, length(ui)), uc = sqrt(sum((ci*ui)^2))){
 		(uc^4)/sum(((ci*ui)^4)/df)
 	}
+	
+	prefixes <- list(
+		Y = 1000000000000000000000000,
+		Z = 1000000000000000000000,
+		E = 1000000000000000000,
+		P = 1000000000000000,
+		T = 1000000000000,
+		G = 1000000000,
+		M = 1000000,
+		k = 1000,
+		h = 100,
+		da = 10,
+		d = 0.1,
+		c = 0.01,
+		m = 0.001,
+		u = 0.000001,
+		n = 0.000000001,
+		p = 0.000000000001,
+		f = 0.000000000000001,
+		a = 0.000000000000000001,
+		z = 0.000000000000000000001,
+		y = 0.000000000000000000000001)
+	get_prefix <- function(prefix_char){
+		if((prefix_char == "") || (is.null(prefix_char))){
+			return(1)
+		}else{
+			return(prefixes[prefix_char][[1]])
+		}
+	}
+
+	do_lookup <- function(var_name, i){
+		# Find which is the index on lookup table for current var and table_data line
+		lookup <- object$lookup[which((object$lookup$row_index == (i-1)) & (object$lookup$var == var_name)),]
+		# Note that the data on lookup starts on 0, so we need to add 1
+		snippet <- object$asset_snippets$snippets[lookup$snippet_index+1,]
+		range <- snippet$value$ranges[[1]][lookup$range_index+1,]
+		return(list(lookup = lookup, range = range))
+	}
 
 	distributions <- list(Rect. = sqrt(3), Norm. = 2, Triang. = sqrt(6), U = sqrt(2))
 
@@ -42,6 +80,9 @@ main <- function(object){
 			for(j in seq(n_row_vars)){
 				# Procede if its not invisible
 				var_name <- object$value$variables$name[[j]]
+
+				do_lookup_res <- do_lookup(var_name, i)
+				prefix <- do_lookup_res$range$prefix
 				if(!"Invisible" %in% object$value$variables$kind[[j]]){
 
 					# Match the title for replications of this variable using regex
@@ -58,7 +99,7 @@ main <- function(object){
 					n <- length(numeric_input)
 
 					# Readout for quantit is the mean
-					readout <- mean(numeric_input)
+					readout <- mean(numeric_input)*get_prefix(prefix)
 					assign(var_name, readout, envir = row_env)
 
 					# Standard desviation
@@ -81,13 +122,12 @@ main <- function(object){
 				# Copy env
 				u_eval_env <- new.env()
 				for(n in ls(row_env, all.names=TRUE)) assign(n, get(n, row_env), u_eval_env)
-				
-				# Find which is the index on lookup table for current var and table_data line
-				lookup <- object$lookup[which((object$lookup$row_index == (i-1)) & (object$lookup$var == var_name)),]
-				
-				# Note that the data on lookup starts on 0, so we need to add 1
-				snippet <- object$asset_snippets$snippets[lookup$snippet_index+1,]
-				range <- snippet$value$ranges[[1]][lookup$range_index+1,]
+
+				do_lookup_res <- do_lookup(var_name, i)
+
+				lookup <- do_lookup_res$lookup
+				range <- do_lookup_res$range
+
 				assign("range", range, envir = u_eval_env)
 				# Assign some aliases
 				assign("range_start", range$limits$start, envir = u_eval_env)
@@ -97,7 +137,6 @@ main <- function(object){
 				# Assign some helper variables
 				var_name_index <- which(object$value$variables$name == var_name)
 				is_UUT <- "UUT" == object$value$variables$kind[var_name_index]
-				print("Measurement" == range$kind)
 				assign("is_UUT", is_UUT, envir = u_eval_env)
 				assign("is_meas", "Measurement" == range$kind, envir = u_eval_env)
 				assign("is_source", "Source" == range$kind, envir = u_eval_env)
@@ -218,7 +257,7 @@ main <- function(object){
 						),
 					list(
 						type = "raw",
-						value = paste( "Test Accuracy Ratios (TUR):", round(MPE/uc, 2) )
+						value = paste( "Test Uncertainty Ratio (TUR):", round(MPE/uc, 2) )
 						)
 					)
 				)
