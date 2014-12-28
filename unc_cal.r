@@ -5,7 +5,7 @@ main <- function(object){
 	w_s <- function (ui, df, ci = rep(1, length(ui)), uc = sqrt(sum((ci*ui)^2))){
 		(uc^4)/sum(((ci*ui)^4)/df)
 	}
-	
+
 	prefixes <- list(
 		Y = 1000000000000000000000000,
 		Z = 1000000000000000000000,
@@ -27,12 +27,17 @@ main <- function(object){
 		a = 0.000000000000000001,
 		z = 0.000000000000000000001,
 		y = 0.000000000000000000000001)
+
 	get_prefix <- function(prefix_char){
 		if((prefix_char == "") || (is.null(prefix_char))){
 			return(1)
 		}else{
 			return(prefixes[prefix_char][[1]])
 		}
+	}
+
+	trim <- function( x ) {
+		gsub("(^[[:space:]]+|[[:space:]]+$)", "", x)
 	}
 
 	do_lookup <- function(var_name, i){
@@ -89,8 +94,8 @@ main <- function(object){
 					match <- ls( object$table_data[1,], pattern = paste("^(", var_name, "){1}(\\s){1}([0-9])+$", sep="") )
 
 					# Select input data, and convert to numeric
-					#inputs <- lapply(data_row[,match], function(x){as.numeric(x)})
-					inputs <- as.numeric(data_row[,match])
+					inputs_raw <- data_row[,match]
+					inputs <- as.numeric(gsub("([a-zA-Z]){1,2}$", "", trim(inputs_raw), perl=TRUE))
 
 					# Filter only numeric and convert to vector
 					numeric_input <- Filter(function(x) !is.na(x) && is.numeric(x), inputs)
