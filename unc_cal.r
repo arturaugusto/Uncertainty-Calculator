@@ -51,7 +51,7 @@ main <- function(object){
 
 	distributions <- list(Rect. = sqrt(3), Norm. = 2, Triang. = sqrt(6), U = sqrt(2))
 
-	out_table_data <- data.frame( VI = numeric(), VC = numeric(), e = numeric(), MPE =  numeric(), U = numeric(), k = numeric(), veff = numeric() )
+	out_table_data <- data.frame( UUT = numeric(), Reference = numeric(), e = numeric(), MPE =  numeric(), U = numeric(), k = numeric(), veff = numeric() )
 
 	details <- c()
 
@@ -235,9 +235,9 @@ main <- function(object){
 			uut_index <- which(object$value$variables$kind == "UUT")
 			var_name <- object$value$variables[uut_index,][["name"]]
 			
-			VI_first_sample <- as.character(object$table_data[paste(var_name, "1")][[1]][1])
+			UUT_first_sample <- as.character(object$table_data[paste(var_name, "1")][[1]][1])
 
-			VI <- get(var_name, row_env)
+			UUT <- get(var_name, row_env)
 
 			with(row_env, eval(parse(text=object$value$formula)))
 			e <- NA
@@ -245,7 +245,7 @@ main <- function(object){
 				e <- get("e", row_env)
 			}
 
-			VC <- as.numeric(VI) - as.numeric(e)
+			Reference <- as.numeric(UUT) - as.numeric(e)
 
 			new_row <- sapply(names(out_table_data), function(x){return(get(x))})
 			out_table_data[i,] <- new_row
